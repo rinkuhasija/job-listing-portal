@@ -1,7 +1,12 @@
 const express = require('express');
 require('dotenv').config()
+const connectDB = require('./config/db');
 
 const app = express();
+
+//connect to DB
+connectDB();
+
 
 //middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -10,7 +15,7 @@ app.get('/', async (req, res) => {
   try {
     res.send("Hello World");
   } catch (err) {
-    res.status(500).send('Server Error');
+    res.status(500).send('Server Error', err);
   }
 });
 
