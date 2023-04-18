@@ -71,10 +71,10 @@ app.post('/register', async (req, res) => {
   }
 });
 
-app.post('/login', async (req,res) => {
+app.post('/login', async (req, res) => {
 
   try {
-    const {email, password } = req.body;
+    const { email, password } = req.body;
 
     //validate input
     if (!(email && password)) {
@@ -84,7 +84,7 @@ app.post('/login', async (req,res) => {
     // check if user exist in our database
     const user = await User.findOne({ email: email });
 
-    if(!user) {
+    if (!user) {
       res.status(404).send("User not found");
     }
 
@@ -100,12 +100,30 @@ app.post('/login', async (req,res) => {
 
       user.token = token;
       res.status(200).json(token);
-    
-  } else {
-    res.status(400).send("Invalid Credentials");
-  }} catch (err) {
+
+    } else {
+      res.status(400).send("Invalid Credentials");
+    }
+  } catch (err) {
     console.log(err);
   }
+})
+
+app.use((req, res, next) => {
+  const err = new Error("Not Found")
+  err.status = 404
+  next(err)
+})
+
+//error handler
+app.use((err, req, res, next) => {
+  res.status(err.status || 500)
+  res.send({
+    error: {
+      status: err.status || 500,
+      message: err.message
+    }
+  })
 })
 
 app.listen(process.env.PORT || 3000, () => {
