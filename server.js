@@ -1,10 +1,13 @@
 const express = require('express');
 require('dotenv').config()
+const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
 const User = require("./model/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
+const auth = require('./middleware/auth');
+const Job = require('./model/jobModel')
+const validateJobPost = require('./middleware/validateJobPost');
 const app = express();
 
 //connect to DB
@@ -14,6 +17,7 @@ connectDB();
 //middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(bodyParser.json());
 
 app.get('/', async (req, res) => {
   try {
@@ -104,6 +108,38 @@ app.post('/login', async (req, res) => {
     } else {
       res.status(400).send("Invalid Credentials");
     }
+  } catch (err) {
+    console.log(err);
+  }
+})
+
+app.post("/addJob", auth, validateJobPost,  async (req, res) => {
+
+  try {
+    const { company_name , logo_url , job_position , salary, job_type, location, job_description, about_company, skills_req } = req.body;
+    
+    //validate input
+    if (!(company_name && logo_url && job_position && salary && job_type && location && job_description && about_company && skills_req)) {
+      res.status(400).send("All input is required");
+    }
+
+    // Create job in our database
+    const job = new Job({
+      company_name,
+      logo_url,
+      job_position,
+      salary,
+      job_type,
+      location,
+      job_description,
+      about_company,
+      skills_req,
+    });
+
+    job.save()
+
+    res.status(201).send("JOB POSTED SUCCESSFULLY");
+
   } catch (err) {
     console.log(err);
   }
