@@ -37,7 +37,6 @@ app.post('/register', async (req, res) => {
     }
 
     // check if user already exist
-    // Validate if user exist in our database
     const oldUser = await User.findOne({ email });
 
     if (oldUser) {
@@ -113,11 +112,11 @@ app.post('/login', async (req, res) => {
   }
 })
 
-app.post("/addJob", auth, validateJobPost,  async (req, res) => {
+app.post("/addJob", auth, validateJobPost, async (req, res) => {
 
   try {
-    const { company_name , logo_url , job_position , salary, job_type, location, job_description, about_company, skills_req } = req.body;
-    
+    const { company_name, logo_url, job_position, salary, job_type, location, job_description, about_company, skills_req } = req.body;
+
     //validate input
     if (!(company_name && logo_url && job_position && salary && job_type && location && job_description && about_company && skills_req)) {
       res.status(400).send("All input is required");
@@ -144,6 +143,33 @@ app.post("/addJob", auth, validateJobPost,  async (req, res) => {
     console.log(err);
   }
 })
+
+//list all jobs
+app.get("/allJobs", async (req, res) => {
+
+  try {
+    const jobs = await Job.find({});
+
+    res.status(200).json(jobs);
+
+  }
+  catch (err) {
+    console.log((err));
+  }
+})
+
+//filter jobs based on skills
+app.get('/jobs/:skill', async function (req, res) {
+  try {
+    const skill = req.params.skill;
+    const jobs = await Job.find({ skills_req: { $in: ["css", "react"] } });
+    res.json(jobs);
+
+  } catch (err) {
+    console.log(err);
+  }
+
+});
 
 app.use((req, res, next) => {
   const err = new Error("Not Found")
