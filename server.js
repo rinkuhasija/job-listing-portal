@@ -1,6 +1,7 @@
 const express = require('express');
 require('dotenv').config()
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const User = require("./model/userModel");
 const bcrypt = require("bcrypt");
@@ -18,6 +19,7 @@ connectDB();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/', async (req, res) => {
   try {
